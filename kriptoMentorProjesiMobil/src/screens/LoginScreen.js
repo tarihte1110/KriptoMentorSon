@@ -14,11 +14,13 @@ import {
   KeyboardAvoidingView,
   Alert
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../api/supabase';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [hidePassword, setHidePassword] = useState(true);
 
   const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -39,6 +41,7 @@ export default function LoginScreen({ navigation }) {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <Text style={styles.title}>Giriş Yap</Text>
+
           <TextInput
             style={styles.input}
             placeholder="E-posta"
@@ -47,19 +50,35 @@ export default function LoginScreen({ navigation }) {
             value={email}
             onChangeText={setEmail}
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Şifre"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.inputFlex}
+              placeholder="Şifre"
+              secureTextEntry={hidePassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setHidePassword(prev => !prev)}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={hidePassword ? 'eye-off-outline' : 'eye-outline'}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
             <Text style={styles.link}>Şifrenizi mi unuttunuz?</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Giriş Yap</Text>
           </TouchableOpacity>
+
           <View style={styles.footer}>
             <Text style={styles.footerText}>Hesabınız yok mu?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -74,11 +93,11 @@ export default function LoginScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
+    flex: 1
   },
   safe: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: 'transparent'
   },
   container: {
     flex: 1,
@@ -87,32 +106,48 @@ const styles = StyleSheet.create({
         ? (StatusBar.currentHeight || 0) + 16
         : 16,
     paddingHorizontal: 24,
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 32,
     alignSelf: 'center',
-    color: '#333'
+    color: '#1a73e8'
   },
   input: {
     backgroundColor: 'rgba(255,255,255,0.9)',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
-    marginBottom: 16,
+    marginBottom: 16
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 8,
+    marginBottom: 16
+  },
+  inputFlex: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12
+  },
+  eyeButton: {
+    padding: 4,
+    marginRight: 8
   },
   link: {
     color: '#007BFF',
     textAlign: 'right',
-    marginBottom: 24,
+    marginBottom: 24
   },
   button: {
     backgroundColor: '#007BFF',
     paddingVertical: 14,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: 'center'
   },
   buttonText: {
     color: '#fff',
@@ -122,7 +157,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 32,
+    marginTop: 32
   },
   footerText: {
     color: '#555'
@@ -132,4 +167,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   }
 });
-

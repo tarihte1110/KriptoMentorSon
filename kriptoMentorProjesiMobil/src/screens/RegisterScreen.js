@@ -8,24 +8,44 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
   StyleSheet,
   Platform,
   StatusBar,
   KeyboardAvoidingView,
   Alert
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../api/supabase';
 
 export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [hidePassword, setHidePassword] = useState(true);
+  const [hideConfirm, setHideConfirm] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
+    if (!email || !password) {
+      Alert.alert('Hata', 'E-posta ve şifre alanları boş bırakılamaz.');
+      return;
+    }
+    if (password !== confirm) {
+      Alert.alert('Hata', 'Şifre ve onay şifresi eşleşmiyor.');
+      return;
+    }
+    setLoading(true);
     const { error } = await supabase.auth.signUp({ email, password });
+    setLoading(false);
     if (error) {
       Alert.alert('Kayıt Hatası', error.message);
     } else {
-      Alert.alert('Başarılı', 'Doğrulama mailinizi kontrol edin.');
+      Alert.alert(
+        'Başarılı',
+        'Doğrulama mailinizi kontrol edin.',
+        [{ text: 'Tamam', onPress: () => navigation.navigate('Login') }]
+      );
     }
   };
 
@@ -41,6 +61,7 @@ export default function RegisterScreen({ navigation }) {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <Text style={styles.title}>Kayıt Ol</Text>
+
           <TextInput
             style={styles.input}
             placeholder="E-posta"
@@ -49,16 +70,59 @@ export default function RegisterScreen({ navigation }) {
             value={email}
             onChangeText={setEmail}
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Şifre (en az 6 hane)"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TouchableOpacity style={styles.button} onPress={handleRegister}>
-            <Text style={styles.buttonText}>Kayıt Ol</Text>
+
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.inputFlex}
+              placeholder="Şifre (en az 6 hane)"
+              secureTextEntry={hidePassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setHidePassword(prev => !prev)}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={hidePassword ? 'eye-off-outline' : 'eye-outline'}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.inputFlex}
+              placeholder="Şifreyi Onayla"
+              secureTextEntry={hideConfirm}
+              value={confirm}
+              onChangeText={setConfirm}
+            />
+            <TouchableOpacity
+              onPress={() => setHideConfirm(prev => !prev)}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={hideConfirm ? 'eye-off-outline' : 'eye-outline'}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Kayıt Ol</Text>
+            )}
           </TouchableOpacity>
+
           <View style={styles.footer}>
             <Text style={styles.footerText}>Zaten hesabınız var mı?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -93,7 +157,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 32,
     alignSelf: 'center',
-    color: '#333'
+    color: '#1a73e8'   // tema rengine uygun mavi
   },
   input: {
     backgroundColor: 'rgba(255,255,255,0.9)',
@@ -102,17 +166,33 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 16,
   },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  inputFlex: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  eyeButton: {
+    padding: 4,
+    marginRight: 8,
+  },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#1a73e8',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 8
+    marginTop: 8,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   footer: {
     flexDirection: 'row',
@@ -120,10 +200,10 @@ const styles = StyleSheet.create({
     marginTop: 32,
   },
   footerText: {
-    color: '#555'
+    color: '#555',
   },
   footerLink: {
-    color: '#007BFF',
-    fontWeight: 'bold'
-  }
+    color: '#1a73e8',
+    fontWeight: 'bold',
+  },
 });

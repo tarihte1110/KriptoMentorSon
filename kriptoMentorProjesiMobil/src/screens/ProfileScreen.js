@@ -24,7 +24,6 @@ export default function ProfileScreen({ navigation }) {
   const { signals } = useContext(SignalsContext);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  // state for logout confirmation modal
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
   useEffect(() => {
@@ -37,10 +36,16 @@ export default function ProfileScreen({ navigation }) {
         .select('full_name,bio,avatar_url,created_at')
         .eq('user_id', user.id)
         .maybeSingle();
+
       if (!prof) {
         const { data: np } = await supabase
           .from('profiles')
-          .insert({ user_id: user.id, full_name: '', bio: '', avatar_url: '' })
+          .insert({
+            user_id: user.id,
+            full_name: '',
+            bio: '',
+            avatar_url: ''
+          })
           .single();
         prof = np;
       }
@@ -63,62 +68,75 @@ export default function ProfileScreen({ navigation }) {
   const joinedDate = new Date(profile.created_at).toLocaleDateString();
   const mySignals = signals.filter(s => s.userId === user.id);
 
-  const renderPost = ({ item }) => (
-    <View style={styles.card}>
-      <View style={styles.headerRow}>
-        <Text style={styles.symbol}>{item.symbol}</Text>
-        <Text style={styles.timestamp}>
-          {new Date(item.timestamp).toLocaleDateString()}
-        </Text>
-      </View>
+  const renderPost = ({ item }) => {
+    const dateObj = new Date(item.timestamp);
+    const dateStr = dateObj.toLocaleDateString();
+    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      <View style={styles.metaRow}>
-        <Text
-          style={[
-            styles.directionBadge,
-            item.direction === 'LONG' ? styles.longBadge : styles.shortBadge
-          ]}
-        >
-          {item.direction}
-        </Text>
-        <Text style={styles.timeBadge}>{item.timeFrame.toUpperCase()}</Text>
-      </View>
-
-      <View style={styles.divider} />
-
-      <View style={styles.row}>
-        <Text style={styles.label}>Entry Price</Text>
-        <Text style={styles.value}>{item.entryPrice}</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Leverage</Text>
-        <Text style={styles.value}>{item.recommendedLeverage}x</Text>
-      </View>
-
-      <View style={styles.divider} />
-
-      {item.targets.map((t, i) => (
-        <View style={styles.row} key={i}>
-          <Text style={styles.label}>Target {i + 1}</Text>
-          <Text style={[styles.value, styles.targetValue]}>{t}</Text>
+    return (
+      <View style={styles.card}>
+        <View style={styles.headerRow}>
+          <Text style={styles.symbol}>{item.symbol}</Text>
+          <View style={styles.timestampContainer}>
+            <Text style={styles.dateText}>{dateStr}</Text>
+            <Text style={styles.timeText}>{timeStr}</Text>
+          </View>
         </View>
-      ))}
 
-      <View style={styles.row}>
-        <Text style={styles.label}>Stop Loss</Text>
-        <Text style={[styles.value, styles.stopValue]}>{item.stopLoss}</Text>
+        <View style={styles.metaRow}>
+          <Text
+            style={[
+              styles.directionBadge,
+              item.direction === 'LONG' ? styles.longBadge : styles.shortBadge
+            ]}
+          >
+            {item.direction}
+          </Text>
+          <Text style={styles.timeBadge}>
+            {(item.timeFrame || '').toUpperCase()}
+          </Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Entry Price</Text>
+          <Text style={styles.value}>{item.entryPrice}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Leverage</Text>
+          <Text style={styles.value}>{item.recommendedLeverage}x</Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        {(item.targets || []).map((t, i) => (
+          <View style={styles.row} key={i}>
+            <Text style={styles.label}>Target {i + 1}</Text>
+            <Text style={[styles.value, styles.targetValue]}>{t}</Text>
+          </View>
+        ))}
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Stop Loss</Text>
+          <Text style={[styles.value, styles.stopValue]}>{item.stopLoss}</Text>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <Background>
       <SafeAreaView style={styles.container}>
         <View style={styles.profileHeader}>
-          {avatarSource
-            ? <Image source={avatarSource} style={styles.avatar}/>
-            : <Ionicons name="person-circle" size={120} color="#1a73e8"/>}
-          <Text style={styles.name}>{profile.full_name || 'KriptoMentor Kullanıcısı'}</Text>
+          {avatarSource ? (
+            <Image source={avatarSource} style={styles.avatar} />
+          ) : (
+            <Ionicons name="person-circle" size={120} color="#1a73e8" />
+          )}
+          <Text style={styles.name}>
+            {profile.full_name || 'KriptoMentor Kullanıcısı'}
+          </Text>
           <Text style={styles.email}>{user.email}</Text>
           {profile.bio && <Text style={styles.bio}>{profile.bio}</Text>}
           <Text style={styles.joined}>Katılım: {joinedDate}</Text>
@@ -157,7 +175,6 @@ export default function ProfileScreen({ navigation }) {
           <Ionicons name="add" size={32} color="#fff" />
         </TouchableOpacity>
 
-        {/* Logout Confirmation Modal */}
         <Modal
           visible={logoutModalVisible}
           transparent
@@ -196,9 +213,7 @@ export default function ProfileScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  loader: {
-    flex: 1, justifyContent: 'center', alignItems: 'center'
-  },
+  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: {
     flex: 1,
     backgroundColor: 'transparent',
@@ -207,53 +222,39 @@ const styles = StyleSheet.create({
         ? (StatusBar.currentHeight || 0) + 16
         : 16
   },
-  profileHeader: {
+  profileHeader: { alignItems: 'center', marginTop: 16 },
+  avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 12 },
+  name: { fontSize: 24, fontWeight: '700' },
+  email: { fontSize: 16, color: '#666', marginTop: 4 },
+  bio: {
+    fontSize: 14,
+    color: '#333',
+    marginTop: 8,
+    textAlign: 'center',
+    paddingHorizontal: 16
+  },
+  joined: { fontSize: 12, color: '#999', marginTop: 4 },
+
+  btn: {
+    marginHorizontal: 32,
+    borderRadius: 8,
+    height: 48,
+    justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16
   },
-  avatar: {
-    width: 120, height: 120, borderRadius: 60, marginBottom: 12
-  },
-  name: {
-    fontSize: 24, fontWeight: '700'
-  },
-  email: {
-    fontSize: 16, color: '#666', marginTop: 4
-  },
-  bio: {
-    fontSize: 14, color: '#333', marginTop: 8,
-    textAlign: 'center', paddingHorizontal: 16
-  },
-  joined: {
-    fontSize: 12, color: '#999', marginTop: 4
-  },
-
-  btn: {
-    marginHorizontal: 32, borderRadius: 8,
-    height: 48, justifyContent: 'center', alignItems: 'center',
-    marginTop: 16
-  },
-  editBtn: {
-    backgroundColor: '#1a73e8'
-  },
-  logoutBtn: {
-    backgroundColor: '#fff', borderWidth: 1, borderColor: '#1a73e8'
-  },
-  btnText: {
-    color: '#fff', fontWeight: '700'
-  },
-  logoutText: {
-    color: '#1a73e8', fontWeight: '700'
-  },
+  editBtn: { backgroundColor: '#1a73e8' },
+  logoutBtn: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#1a73e8' },
+  btnText: { color: '#fff', fontWeight: '700' },
+  logoutText: { color: '#1a73e8', fontWeight: '700' },
 
   section: {
-    fontSize: 18, fontWeight: '700',
-    textAlign: 'center', marginVertical: 16
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginVertical: 16
   },
-  empty: {
-    fontSize: 14, color: '#666',
-    textAlign: 'center'
-  },
+  empty: { fontSize: 14, color: '#666', textAlign: 'center' },
 
   card: {
     backgroundColor: '#fff',
@@ -272,19 +273,13 @@ const styles = StyleSheet.create({
       android: { elevation: 2 }
     })
   },
-  headerRow: {
-    flexDirection: 'row', justifyContent: 'space-between'
-  },
-  symbol: {
-    fontSize: 18, fontWeight: '700'
-  },
-  timestamp: {
-    fontSize: 12, color: '#999'
-  },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  symbol: { fontSize: 18, fontWeight: '700' },
+  timestampContainer: { alignItems: 'flex-end' },
+  dateText: { fontSize: 12, color: '#999' },
+  timeText: { fontSize: 12, color: '#666', marginTop: 2 },
 
-  metaRow: {
-    flexDirection: 'row', marginTop: 8
-  },
+  metaRow: { flexDirection: 'row', marginTop: 8 },
   directionBadge: {
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -293,12 +288,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginRight: 8
   },
-  longBadge: {
-    backgroundColor: '#e6f4ea', color: '#34a853'
-  },
-  shortBadge: {
-    backgroundColor: '#fdecea', color: '#ea4335'
-  },
+  longBadge: { backgroundColor: '#e6f4ea', color: '#34a853' },
+  shortBadge: { backgroundColor: '#fdecea', color: '#ea4335' },
   timeBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -309,28 +300,12 @@ const styles = StyleSheet.create({
     fontWeight: '700'
   },
 
-  divider: {
-    height: 1, backgroundColor: '#eee',
-    marginVertical: 12
-  },
-
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8
-  },
-  label: {
-    fontSize: 14, color: '#555'
-  },
-  value: {
-    fontSize: 14, fontWeight: '600', color: '#333'
-  },
-  targetValue: {
-    color: '#34a853'
-  },
-  stopValue: {
-    color: '#ea4335'
-  },
+  divider: { height: 1, backgroundColor: '#eee', marginVertical: 12 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  label: { fontSize: 14, color: '#555' },
+  value: { fontSize: 14, fontWeight: '600', color: '#333' },
+  targetValue: { color: '#34a853' },
+  stopValue: { color: '#ea4335' },
 
   floating: {
     position: 'absolute',
@@ -344,7 +319,6 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
 
-  // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.3)',
@@ -358,40 +332,11 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center'
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 10
-  },
-  modalMessage: {
-    fontSize: 14,
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 20
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    width: '100%'
-  },
-  modalCancel: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginRight: 10
-  },
-  modalCancelText: {
-    fontSize: 14,
-    color: '#1a73e8'
-  },
-  modalConfirm: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#1a73e8',
-    borderRadius: 6
-  },
-  modalConfirmText: {
-    fontSize: 14,
-    color: '#fff',
-    fontWeight: '700'
-  }
+  modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 10 },
+  modalMessage: { fontSize: 14, color: '#333', textAlign: 'center', marginBottom: 20 },
+  modalButtons: { flexDirection: 'row', justifyContent: 'flex-end', width: '100%' },
+  modalCancel: { paddingVertical: 8, paddingHorizontal: 12, marginRight: 10 },
+  modalCancelText: { fontSize: 14, color: '#1a73e8' },
+  modalConfirm: { paddingVertical: 8, paddingHorizontal: 12, backgroundColor: '#1a73e8', borderRadius: 6 },
+  modalConfirmText: { fontSize: 14, color: '#fff', fontWeight: '700' }
 });
