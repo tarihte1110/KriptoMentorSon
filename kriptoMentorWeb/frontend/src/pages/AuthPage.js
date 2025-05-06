@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signUp, signIn } from '../services/auth';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import './AuthPage.css';
 
 export default function AuthPage() {
@@ -25,7 +26,7 @@ export default function AuthPage() {
         return;
       }
       const { error } = await signUp(email, password);
-      setMessage(error?.message || 'Kayıt başarılı! Lütfen e‑postanızı onaylayın.');
+      setMessage(error?.message || 'Kayıt başarılı! Lütfen e-postanızı onaylayın.');
     } else {
       const { error } = await signIn(email, password);
       if (error) {
@@ -39,10 +40,10 @@ export default function AuthPage() {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>{mode === 'signup' ? 'Kayıt Ol' : 'KriptoMentor Giriş'}</h2>
+        <h2>{mode === 'signup' ? 'Kayıt Ol' : 'Giriş Yap'}</h2>
         <form onSubmit={handleSubmit}>
           <label>
-            E‑posta
+            E-posta
             <input
               type="email"
               value={email}
@@ -62,9 +63,11 @@ export default function AuthPage() {
               />
               <span
                 className="toggle-password"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowPassword(v => !v)}
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword 
+                  ? <FaEyeSlash size={20} /> 
+                  : <FaEye size={20} />}
               </span>
             </div>
           </label>
@@ -81,9 +84,11 @@ export default function AuthPage() {
                 />
                 <span
                   className="toggle-password"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  onClick={() => setShowConfirmPassword(v => !v)}
                 >
-                  {showConfirmPassword ? '🙈' : '👁️'}
+                  {showConfirmPassword 
+                    ? <FaEyeSlash size={20} /> 
+                    : <FaEye size={20} />}
                 </span>
               </div>
             </label>
@@ -112,5 +117,5 @@ export default function AuthPage() {
         </p>
       </div>
     </div>
-  );
+);
 }

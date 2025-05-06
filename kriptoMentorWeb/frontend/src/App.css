@@ -1,0 +1,53 @@
+/* src/App.css */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Layout’ın tamamını tam yükseklik yapıyoruz */
+  .protected-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* viewport’un tamamı */
+  }
+  
+  /* Header sabit, içerik kısmı geri kalan */
+  .protected-layout > header {
+    flex: 0 0 60px; /* header yüksekliği (örnek: 60px) */
+  }
+  
+  /* İçerik alanı: sidebar + sayfa */
+  .protected-content {
+    display: flex;
+    flex: 1; /* header’dan kalan tüm yüksekliği kapla */
+    overflow: hidden; /* sidebar içi vs taşmasın */
+  }
+  
+  /* Sidebar: sabit genişlik, tam yükseklik */
+  .sidebar {
+    flex: 0 0 220px;       /* sabit genişlik */
+    height: 100%;          /* protected-content’un yüksekliğini kapla */
+    background-color: #fdfdfd;
+    border-right: 1px solid #ccc;
+    box-sizing: border-box;
+    overflow-y: auto;      /* içerik taşarsa scroll görünsün */
+    position: relative;    /* sticky kullanmak istersen */
+  }
+  
+  /* Eğer daha şık sticky sidebar istersen: */
+  /*
+  .sidebar {
+    position: sticky;
+    top: 60px;             // header yüksekliğine göre
+    height: calc(100vh - 60px);
+  }
+  */
+  
+  /* Sayfa içeriği yan yana duracak */
+  .protected-page {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 30px;
+  }
+  

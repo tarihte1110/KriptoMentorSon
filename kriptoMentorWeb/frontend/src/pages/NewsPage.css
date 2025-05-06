@@ -1,0 +1,107 @@
+/* src/pages/NewsPage.css */
+
+.news-page {
+    padding: 30px;
+  }
+  
+  .news-header-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  .news-header {
+    font-size: 2rem;
+    color: #1a73e8;
+    margin: 0;
+  }
+  
+  .refresh-btn {
+    position: absolute;
+    right: 0;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #1a73e8;
+  }
+  
+  /* Burayı güncelledik: iki sütunlu ızgara */
+  .news-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  /* Kart genişliğini hücreye yay */
+  .news-card {
+    display: block;
+    text-decoration: none;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.1s ease;
+    width: 100%;
+  }
+  
+  .news-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .news-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .news-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #333;
+    margin: 16px;
+  }
+  
+  .news-meta {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  
+  .news-description {
+    font-size: 0.95rem;
+    color: #444;
+    padding: 0 16px;
+    margin-bottom: 12px;
+  }
+  
+  .news-footer {
+    text-align: right;
+    padding: 0 16px 16px;
+    font-size: 1.2rem;
+    color: #1a73e8;
+  }
+  
+  .loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+  }
+  
+  .spinner {
+    border: 4px solid #eee;
+    border-top: 4px solid #1a73e8;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin { to { transform: rotate(360deg); } }
+  

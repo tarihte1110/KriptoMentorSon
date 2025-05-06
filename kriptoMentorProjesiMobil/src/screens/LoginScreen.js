@@ -40,7 +40,7 @@ export default function LoginScreen({ navigation }) {
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <Text style={styles.title}>Giriş Yap</Text>
+          <Text style={styles.title}>KriptoMentor Giriş</Text>
 
           <TextInput
             style={styles.input}

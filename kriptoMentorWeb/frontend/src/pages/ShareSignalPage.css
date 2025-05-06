@@ -1,0 +1,82 @@
+/* src/pages/ShareSignalPage.css */
+
+.share-page {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+  
+  .share-page h2 {
+    text-align: center;
+    color: #007BFF;
+    margin-bottom: 20px;
+  }
+  
+  .share-page label {
+    display: block;
+    font-weight: 600;
+    margin-top: 16px;
+    color: #333;
+  }
+  
+  .share-page select,
+  .share-page input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  
+  .btn-group button {
+    flex: 1;
+    padding: 8px 0;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .btn-group button.active {
+    background: #e6f4ea;
+    border-color: #34a853;
+    color: #34a853;
+  }
+  
+  /* SHORT için kırmızı çerçeve ve metin */
+  .btn-group button.short.active {
+    background: #fdecea;
+    border-color: #ea4335;
+    color: #ea4335;
+  }
+  
+  .btn-group button.active.tf {
+    background: #eef4ff;
+    border-color: #1a73e8;
+    color: #1a73e8;
+  }
+  
+  .btn.submit {
+    width: 100%;
+    margin-top: 30px;
+    padding: 14px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  

@@ -1,6 +1,6 @@
 // src/App.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { supabase } from './lib/supabaseClient';
 
@@ -11,58 +11,79 @@ import NewsPage from './pages/NewsPage';
 import ProfilePage from './pages/ProfilePage';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
+import EditProfilePage from './pages/EditProfilePage';
+import ShareSignalPage from './pages/ShareSignalPage';
+
+import bgImage from './assets/images/background-page.png';
+import './App.css';
 
 function ProtectedLayout() {
-  // Header + Sidebar + alt sayfaları render eden genel şablon
   return (
-    <>
+    <div
+      className="protected-layout"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+        minHeight: '100vh',
+      }}
+    >
       <Header />
-      <div style={{ display: 'flex' }}>
+      <div className="protected-content">
         <Sidebar />
-        <div style={{ flex: 1, padding: '20px 30px' }}>
+        <div className="protected-page">
           <Outlet />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
-function App() {
+export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // İlk oturum kontrolü
+    // İlk oturum bilgisini al
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
       setLoading(false);
     });
-    // Oturum değişimi dinle
+    // Oturum değişikliklerini dinle
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_e, session) => { setUser(session?.user ?? null); }
+      (_e, session) => setUser(session?.user ?? null)
     );
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) return <div style={{ textAlign:'center', marginTop:100 }}>Yükleniyor…</div>;
+  if (loading) {
+    return <div style={{ textAlign: 'center', marginTop: 100 }}>Yükleniyor…</div>;
+  }
 
   return (
     <Routes>
-      {/* Public */}
+      {/* Giriş/Kayıt */}
       <Route path="/auth" element={<AuthPage />} />
 
-      {/* Protected */}
-      <Route element={user ? <ProtectedLayout /> : <Navigate to="/auth" replace />}>
+      {/* Korumalı Alanlar */}
+      <Route
+        element={user ? <ProtectedLayout /> : <Navigate to="/auth" replace />}
+      >
         <Route path="/" element={<HomePage />} />
         <Route path="/market" element={<MarketPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/edit-profile" element={<EditProfilePage />} />
+        <Route path="/share-signal" element={<ShareSignalPage />} />
       </Route>
 
       {/* Fallback */}
-      <Route path="*" element={<Navigate to={user ? "/" : "/auth"} replace />} />
+      <Route
+        path="*"
+        element={<Navigate to={user ? "/" : "/auth"} replace />}
+      />
     </Routes>
   );
 }
-
-export default App;
