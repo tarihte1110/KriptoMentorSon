@@ -1,5 +1,3 @@
-// src/screens/LoginScreen.js
-
 import React, { useState } from 'react';
 import {
   ImageBackground,
@@ -12,7 +10,8 @@ import {
   Platform,
   StatusBar,
   KeyboardAvoidingView,
-  Alert
+  Alert,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../api/supabase';
@@ -40,7 +39,14 @@ export default function LoginScreen({ navigation }) {
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <Text style={styles.title}>KriptoMentor Giriş</Text>
+          {/* Logo */}
+          <Image
+            source={require('../../assets/logo-blue.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+
+          <Text style={styles.title}>Giriş Yap</Text>
 
           <TextInput
             style={styles.input}
@@ -107,6 +113,12 @@ const styles = StyleSheet.create({
         : 16,
     paddingHorizontal: 24,
     justifyContent: 'center'
+  },
+  logo: {
+    width: 200,
+    height: 200,
+    alignSelf: 'center',
+    marginBottom: 30
   },
   title: {
     fontSize: 32,
