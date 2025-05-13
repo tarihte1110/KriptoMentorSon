@@ -13,6 +13,8 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import EditProfilePage from './pages/EditProfilePage';
 import ShareSignalPage from './pages/ShareSignalPage';
+import CommentsPage from './pages/CommentsPage';
+import PublicProfilePage from './pages/PublicProfilePage';
 
 import bgImage from './assets/images/background-page.png';
 import './App.css';
@@ -77,6 +79,8 @@ export default function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="/share-signal" element={<ShareSignalPage />} />
+        <Route path="/comments/:signalId" element={<CommentsPage />} />
+        <Route path="/profile/:userId" element={<PublicProfilePage />} />
       </Route>
 
       {/* Fallback */}

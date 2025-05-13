@@ -1,33 +1,66 @@
-// src/pages/AuthPage.js 
+// src/pages/AuthPage.js
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signUp, signIn } from '../services/auth';
+import { signIn } from '../services/auth';       // eskiden signUp kullanıyordunuz
+import { supabase } from '../lib/supabaseClient'; // şimdi supabase’e direkt başvuracağız
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import './AuthPage.css';
 
 export default function AuthPage() {
-  const [mode, setMode] = useState('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [mode, setMode]                 = useState('login');      // 'login' veya 'signup'
+  const [userType, setUserType]         = useState('investor');  // 'investor' veya 'trader'
+  const [username, setUsername]         = useState('');
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [message, setMessage] = useState('');
+  const [showConfirm, setShowConfirm]   = useState(false);
+  const [message, setMessage]           = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setMessage('');
 
     if (mode === 'signup') {
+      // 1) Tüm alanları doldur
+      if (!username.trim() || !email.trim() || !password) {
+        setMessage('Lütfen tüm alanları doldurun.');
+        return;
+      }
+      // 2) Parola kontrolü
       if (password !== confirmPassword) {
         setMessage('Parolalar eşleşmiyor!');
         return;
       }
-      const { error } = await signUp(email, password);
-      setMessage(error?.message || 'Kayıt başarılı! Lütfen e-postanızı onaylayın.');
+      // 3) Auth kaydı
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password
+      });
+      if (signUpError) {
+        setMessage(signUpError.message);
+        return;
+      }
+      // 4) profiles tablosuna satır ekle
+      const userId = data.user.id;
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: userId,
+          user_type: userType,
+          full_name: username,
+          bio: '',
+          avatar_url: ''
+        });
+      if (profileError) {
+        setMessage(profileError.message);
+        return;
+      }
+      setMessage('Kayıt başarılı! Lütfen e-postanızı onaylayın.');
     } else {
+      // login
       const { error } = await signIn(email, password);
       if (error) {
         setMessage(error.message);
@@ -40,14 +73,46 @@ export default function AuthPage() {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>{mode === 'signup' ? 'Kayıt Ol' : 'Giriş Yap'}</h2>
+        <h2>{mode === 'signup' ? 'Kayıt Ol' : 'KriptoMentor Giriş'}</h2>
+
+        {mode === 'signup' && (
+          <div className="user-type-container">
+            <button
+              type="button"
+              className={`type-button ${userType==='investor' ? 'active' : ''}`}
+              onClick={() => setUserType('investor')}
+            >
+              Yatırımcı
+            </button>
+            <button
+              type="button"
+              className={`type-button ${userType==='trader' ? 'active' : ''}`}
+              onClick={() => setUserType('trader')}
+            >
+              Trader
+            </button>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
+          {mode === 'signup' && (
+            <label>
+              Kullanıcı Adı
+              <input
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                required
+              />
+            </label>
+          )}
+
           <label>
             E-posta
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
             />
           </label>
@@ -58,16 +123,16 @@ export default function AuthPage() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
               />
               <span
                 className="toggle-password"
                 onClick={() => setShowPassword(v => !v)}
               >
-                {showPassword 
-                  ? <FaEyeSlash size={20} /> 
-                  : <FaEye size={20} />}
+                {showPassword
+                  ? <FaEyeSlash size={18} />
+                  : <FaEye      size={18} />}
               </span>
             </div>
           </label>
@@ -77,18 +142,18 @@ export default function AuthPage() {
               Parola (Tekrar)
               <div className="password-wrapper">
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirm ? 'text' : 'password'}
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={e => setConfirmPassword(e.target.value)}
                   required
                 />
                 <span
                   className="toggle-password"
-                  onClick={() => setShowConfirmPassword(v => !v)}
+                  onClick={() => setShowConfirm(v => !v)}
                 >
-                  {showConfirmPassword 
-                    ? <FaEyeSlash size={20} /> 
-                    : <FaEye size={20} />}
+                  {showConfirm
+                    ? <FaEyeSlash size={18}/>
+                    : <FaEye      size={18}/>}
                 </span>
               </div>
             </label>
@@ -108,7 +173,7 @@ export default function AuthPage() {
           <button
             className="switch-button"
             onClick={() => {
-              setMode(mode === 'signup' ? 'login' : 'signup');
+              setMode(m => m==='signup' ? 'login' : 'signup');
               setMessage('');
             }}
           >
@@ -117,5 +182,5 @@ export default function AuthPage() {
         </p>
       </div>
     </div>
-);
+  );
 }

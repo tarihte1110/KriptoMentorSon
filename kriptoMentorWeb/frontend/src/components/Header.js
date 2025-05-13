@@ -1,11 +1,16 @@
+// src/components/Header.js
+
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { avatarList } from '../utils/avatars';
 import logo from '../assets/images/logo.png';
 import './Header.css';
 
 export default function Header() {
+  const navigate = useNavigate();
   const [avatarSrc, setAvatarSrc] = useState(null);
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -24,6 +29,30 @@ export default function Header() {
     });
   }, []);
 
+  const handleKeyDown = async (e) => {
+    if (e.key !== 'Enter') return;
+    const q = searchText.trim();
+    if (q.startsWith('@')) {
+      const name = q.slice(1).trim();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('full_name', name)
+        .eq('user_type', 'trader')
+        .maybeSingle();
+      if (error) {
+        console.error(error);
+        alert('Bir hata oluştu.');
+      } else if (!data) {
+        alert(`"${name}" adlı trader bulunamadı.`);
+      } else {
+        navigate(`/profile/${data.user_id}`);
+        setSearchText('');
+      }
+    }
+    // başka bir arama mantığı eklemek isterseniz buraya
+  };
+
   return (
     <header className="header">
       <div className="header-left">
@@ -34,6 +63,9 @@ export default function Header() {
           type="text"
           className="search-input"
           placeholder="Arama..."
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
       </div>
       <div className="header-right">
