@@ -15,25 +15,38 @@ export default function Sidebar() {
     <nav className="sidebar">
       <ul>
         <li>
-          <NavLink to="/" className={({ isActive }) => isActive ? 'active' : ''}>
+          <NavLink
+            to="/app"
+            end
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
             <FaHome className="icon" />
             Ana Sayfa
           </NavLink>
         </li>
         <li>
-          <NavLink to="/market" className={({ isActive }) => isActive ? 'active' : ''}>
+          <NavLink
+            to="/app/market"
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
             <FaChartLine className="icon" />
             Piyasa
           </NavLink>
         </li>
         <li>
-          <NavLink to="/news" className={({ isActive }) => isActive ? 'active' : ''}>
+          <NavLink
+            to="/app/news"
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
             <FaRegNewspaper className="icon" />
             Haberler
           </NavLink>
         </li>
         <li>
-          <NavLink to="/profile" className={({ isActive }) => isActive ? 'active' : ''}>
+          <NavLink
+            to="/app/profile"
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
             <FaUser className="icon" />
             Profil
           </NavLink>

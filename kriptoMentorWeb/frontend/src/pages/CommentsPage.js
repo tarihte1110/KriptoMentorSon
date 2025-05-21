@@ -25,11 +25,9 @@ export default function CommentsPage() {
   const [editingId, setEditingId]   = useState(null);
   const [editingText, setEditingText] = useState('');
   const [loading, setLoading]       = useState(true);
-
-  // silme modalı için
   const [deleteTargetId, setDeleteTargetId] = useState(null);
 
-  // --- 1) Oturum ve profil çek ---
+  // 1) Oturum ve profil
   useEffect(() => {
     supabase.auth.getSession()
       .then(({ data:{ session } }) => {
@@ -45,7 +43,7 @@ export default function CommentsPage() {
       .catch(console.error);
   }, [navigate]);
 
-  // --- fetchComments fonksiyonu ---
+  // fetchComments fonksiyonu
   const fetchComments = async () => {
     if (!signalId) return;
     setLoading(true);
@@ -64,7 +62,7 @@ export default function CommentsPage() {
         .in('user_id', userIds);
 
       const nameMap = {};
-      profs.forEach(p => (nameMap[p.user_id] = p.full_name || 'Anonim'));
+      profs.forEach(p => nameMap[p.user_id] = p.full_name || 'Anonim');
 
       const enriched = raw.map(c => ({
         ...c,
@@ -88,12 +86,13 @@ export default function CommentsPage() {
     }
   };
 
-  // --- 2) İlk yüklemede çek ---
+  // 2) İlk yüklemede çek
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchComments();
   }, [signalId]);
 
-  // --- 3) Yeni yorum ---
+  // 3) Yeni yorum
   const postComment = async () => {
     if (!newComment.trim()) return;
     await supabase.from('comments').insert({
@@ -106,7 +105,7 @@ export default function CommentsPage() {
     fetchComments();
   };
 
-  // --- 4) Yeni cevap ---
+  // 4) Yeni cevap
   const postReply = async () => {
     if (!replyText.trim() || !replyingTo) return;
     await supabase.from('comments').insert({
@@ -120,7 +119,7 @@ export default function CommentsPage() {
     fetchComments();
   };
 
-  // --- 5) Düzenleme ---
+  // 5) Düzenleme
   const startEdit = c => {
     setEditingId(c.id);
     setEditingText(c.content);
@@ -136,7 +135,7 @@ export default function CommentsPage() {
     fetchComments();
   };
 
-  // --- 6) Silme (modal üzerinden) ---
+  // 6) Silme
   const confirmDelete = async () => {
     if (!deleteTargetId) return;
     await supabase
@@ -177,21 +176,6 @@ export default function CommentsPage() {
               profile={profile}
             />
 
-            {/* cevap kutusu */}
-            {replyingTo === c.id && profile?.user_type === 'investor' && (
-              <div className="new-reply">
-                <textarea
-                  placeholder="Cevap yaz..."
-                  value={replyText}
-                  onChange={e => setReplyText(e.target.value)}
-                />
-                <button onClick={postReply}>
-                  <FaPaperPlane />
-                </button>
-              </div>
-            )}
-
-            {/* cevaplar */}
             {(comments.repliesMap[c.id] || []).map(r => (
               <CommentItem
                 key={r.id}
@@ -207,11 +191,23 @@ export default function CommentsPage() {
                 profile={profile}
               />
             ))}
+
+            {replyingTo === c.id && profile?.user_type === 'investor' && (
+              <div className="new-reply">
+                <textarea
+                  placeholder="Cevap yaz..."
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                />
+                <button onClick={postReply}>
+                  <FaPaperPlane />
+                </button>
+              </div>
+            )}
           </React.Fragment>
         ))}
       </div>
 
-      {/* yeni kök yorum */}
       {profile?.user_type === 'investor' && (
         <div className="new-comment">
           <textarea
@@ -225,26 +221,16 @@ export default function CommentsPage() {
         </div>
       )}
 
-      {/* silme onay modalı */}
       {deleteTargetId && (
         <div className="modal-overlay" onClick={() => setDeleteTargetId(null)}>
-          <div
-            className="modal-content"
-            onClick={e => e.stopPropagation()}
-          >
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h3>Yorumu Sil</h3>
             <p>Bu yorumu silmek istediğinize emin misiniz?</p>
             <div className="modal-buttons">
-              <button
-                className="modal-btn cancel"
-                onClick={() => setDeleteTargetId(null)}
-              >
+              <button className="modal-btn cancel" onClick={() => setDeleteTargetId(null)}>
                 İptal
               </button>
-              <button
-                className="modal-btn confirm"
-                onClick={confirmDelete}
-              >
+              <button className="modal-btn confirm" onClick={confirmDelete}>
                 Sil
               </button>
             </div>
@@ -255,7 +241,7 @@ export default function CommentsPage() {
   );
 }
 
-// Ayrık bir yorum kutusu bileşeni
+// Ayık bir yorum bileşeni
 function CommentItem({
   comment,
   isReply,

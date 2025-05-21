@@ -1,6 +1,7 @@
 /* src/pages/AuthPage.css */
 
 .auth-container {
+  position: relative;       /* logo’yu mutlak konumlandırmak için */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,6 +11,14 @@
   background-position: center;
   background-repeat: no-repeat;
   background-color: #f2f6fc;
+}
+
+.auth-logo {
+  position: absolute;
+  top: 20px;      /* sayfanın üstünden boşluk */
+  left: 20px;     /* sayfanın solundan boşluk */
+  width: 140px;   /* ihtiyaç halinde ayarlayın */
+  height: auto;
 }
 
 .auth-box {
@@ -50,7 +59,6 @@
   background-color: #007BFF;
   color: #fff;
 }
-
 /* ──────────────────────────────── */
 
 .auth-box label {

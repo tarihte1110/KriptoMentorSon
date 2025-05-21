@@ -1,134 +1,220 @@
+/* src/pages/PublicProfilePage.css */
+
 .public-profile {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 0 20px 40px;
-  }
-  
-  .back-btn {
-    background: none;
-    border: none;
-    color: #1a73e8;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-bottom: 16px;
-  }
-  
-  .loader {
-    text-align: center;
-    padding: 100px 0;
-  }
-  
-  .profile-header {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .avatar-img {
-    width: 120px;
-    height: 120px;
-    border-radius: 60px;
-    object-fit: cover;
-    margin-bottom: 16px;
-  }
-  .avatar-placeholder {
-    font-size: 120px;
-    color: #ccc;
-    margin-bottom: 16px;
-  }
-  .name {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 700;
-  }
-  .bio {
-    margin: 8px auto;
-    font-size: 15px;
-    color: #333;
-    max-width: 500px;
-  }
-  .joined {
-    font-size: 14px;
-    color: #666;
-    margin-top: 4px;
-  }
-  
-  .signals-title {
-    font-size: 20px;
-    margin-bottom: 12px;
-  }
-  .empty {
-    text-align: center;
-    color: #666;
-    font-size: 14px;
-  }
-  
-  .signals-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .signal-card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-    overflow: hidden;
-  }
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid #eee;
-  }
-  .symbol {
-    font-weight: 700;
-  }
-  .timestamp {
-    font-size: 12px;
-    color: #999;
-  }
-  .card-meta {
-    display: flex;
-    gap: 8px;
-    padding: 12px 16px;
-  }
-  .badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .long {
-    background: #e6f4ea;
-    color: #34a853;
-  }
-  .short {
-    background: #fdecea;
-    color: #ea4335;
-  }
-  .timeframe {
-    background: #eef4ff;
-    color: #1a73e8;
-  }
-  
-  .card-body {
-    padding: 16px;
-  }
-  .row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .label {
-    color: #555;
-  }
-  .value {
-    font-weight: 600;
-    color: #333;
-  }
-  .value.target {
-    color: #34a853;
-  }
-  .value.stop {
-    color: #ea4335;
-  }
-  
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px 40px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.loader {
+  text-align: center;
+  padding: 100px 0;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.avatar-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  object-fit: cover;
+  margin-bottom: 16px;
+}
+
+.avatar-placeholder {
+  font-size: 120px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.bio {
+  margin: 8px auto;
+  font-size: 15px;
+  color: #333;
+  max-width: 500px;
+}
+
+.joined {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* Follow button */
+.follow-btn {
+  padding: 8px 16px;
+  background-color: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin: 12px 0;
+}
+
+.follow-btn.unfollow {
+  background-color: #fff;
+  color: #1a73e8;
+  border: 1px solid #1a73e8;
+}
+
+/* Clickable follower count */
+.follower-count-clickable {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a73e8;
+  cursor: pointer;
+  margin: 8px 0;
+}
+
+/* Followers section (only visible to the trader themself) */
+.followers-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px auto 0;
+  max-width: 300px;
+}
+
+.follower-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.follower-item:last-child {
+  border-bottom: none;
+}
+
+.follower-avatar,
+.follower-avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.follower-avatar-placeholder {
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #aaa;
+}
+
+/* Signals List */
+.signals-title {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.empty {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.signals-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.signal-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.symbol {
+  font-weight: 700;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #999;
+}
+
+.card-meta {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.long {
+  background: #e6f4ea;
+  color: #34a853;
+}
+
+.short {
+  background: #fdecea;
+  color: #ea4335;
+}
+
+.timeframe {
+  background: #eef4ff;
+  color: #1a73e8;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.label {
+  color: #555;
+}
+
+.value {
+  font-weight: 600;
+  color: #333;
+}
+
+.value.target {
+  color: #34a853;
+}
+
+.value.stop {
+  color: #ea4335;
+}

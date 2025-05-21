@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn } from '../services/auth';       // eskiden signUp kullanıyordunuz
-import { supabase } from '../lib/supabaseClient'; // şimdi supabase’e direkt başvuracağız
+import { signIn } from '../services/auth';
+import { supabase } from '../lib/supabaseClient';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import logo from '../assets/images/logo-blue.png';     // ← Logonuzun adı neyse buraya yazın
 import './AuthPage.css';
 
 export default function AuthPage() {
@@ -22,28 +23,20 @@ export default function AuthPage() {
   const handleSubmit = async e => {
     e.preventDefault();
     setMessage('');
-
     if (mode === 'signup') {
-      // 1) Tüm alanları doldur
       if (!username.trim() || !email.trim() || !password) {
         setMessage('Lütfen tüm alanları doldurun.');
         return;
       }
-      // 2) Parola kontrolü
       if (password !== confirmPassword) {
         setMessage('Parolalar eşleşmiyor!');
         return;
       }
-      // 3) Auth kaydı
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password
-      });
+      const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
       if (signUpError) {
         setMessage(signUpError.message);
         return;
       }
-      // 4) profiles tablosuna satır ekle
       const userId = data.user.id;
       const { error: profileError } = await supabase
         .from('profiles')
@@ -60,18 +53,20 @@ export default function AuthPage() {
       }
       setMessage('Kayıt başarılı! Lütfen e-postanızı onaylayın.');
     } else {
-      // login
       const { error } = await signIn(email, password);
       if (error) {
         setMessage(error.message);
       } else {
-        navigate('/', { replace: true });
+        navigate('/app', { replace: true });
       }
     }
   };
 
   return (
     <div className="auth-container">
+      {/*— LOGO —*/}
+      <img src={logo} alt="KriptoMentor Logo" className="auth-logo" />
+
       <div className="auth-box">
         <h2>{mode === 'signup' ? 'Kayıt Ol' : 'KriptoMentor Giriş'}</h2>
 
@@ -130,9 +125,7 @@ export default function AuthPage() {
                 className="toggle-password"
                 onClick={() => setShowPassword(v => !v)}
               >
-                {showPassword
-                  ? <FaEyeSlash size={18} />
-                  : <FaEye      size={18} />}
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
           </label>
@@ -151,9 +144,7 @@ export default function AuthPage() {
                   className="toggle-password"
                   onClick={() => setShowConfirm(v => !v)}
                 >
-                  {showConfirm
-                    ? <FaEyeSlash size={18}/>
-                    : <FaEye      size={18}/>}
+                  {showConfirm ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
             </label>

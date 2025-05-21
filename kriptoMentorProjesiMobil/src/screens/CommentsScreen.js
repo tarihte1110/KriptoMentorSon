@@ -34,6 +34,7 @@ export default function CommentsScreen({ route, navigation }) {
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState('');
 
+  // 1) Oturum + Profil
   useEffect(() => {
     (async () => {
       try {
@@ -55,6 +56,7 @@ export default function CommentsScreen({ route, navigation }) {
     })();
   }, []);
 
+  // 2) Yorumları çek
   useEffect(() => {
     if (signalId) fetchComments();
   }, [signalId]);
@@ -69,31 +71,32 @@ export default function CommentsScreen({ route, navigation }) {
         .order('created_at', { ascending: true });
       if (error) throw error;
 
+      // Profil adı eşlemesi
       const userIds = [...new Set(rows.map(r => r.user_id))];
       const { data: profs = [] } = await supabase
         .from('profiles')
         .select('user_id, full_name')
         .in('user_id', userIds);
-
       const profMap = {};
       profs.forEach(p => profMap[p.user_id] = p.full_name || 'Anonim');
 
+      // Birleştir + replyToAuthor
       const merged = rows.map(r => ({
         ...r,
         author: profMap[r.user_id] || 'Anonim'
       }));
       const idToAuthor = {};
       merged.forEach(m => idToAuthor[m.id] = m.author);
-
       const enriched = merged.map(m => ({
         ...m,
         replyToAuthor: m.parent_id ? idToAuthor[m.parent_id] : null
       }));
 
+      // roots & repliesMap
       const roots = enriched.filter(r => r.parent_id === null);
       const repliesMap = enriched.reduce((map, r) => {
         if (r.parent_id) {
-          map[r.parent_id] = map[r.parent_id] || [];
+          map[r.parent_id] = map[r.parent_id]||[];
           map[r.parent_id].push(r);
         }
         return map;
@@ -108,6 +111,7 @@ export default function CommentsScreen({ route, navigation }) {
     }
   }
 
+  // 3) Ana yorum ekle
   async function handlePost() {
     if (!newComment.trim()) return;
     try {
@@ -128,18 +132,22 @@ export default function CommentsScreen({ route, navigation }) {
     }
   }
 
+  // 4) Cevap gönder
   async function handleReply() {
     if (!replyText.trim() || !replyingTo) return;
     try {
-      const replyTo = commentsData.repliesMap[replyingTo]?.[0]?.replyToAuthor || '';
-      const content = replyTo ? `@${replyTo} ${replyText.trim()}` : replyText.trim();
+      const replyTo =
+        commentsData.repliesMap[replyingTo]?.[0]?.replyToAuthor || '';
+      const content = replyTo
+        ? `@${replyTo} ${replyText.trim()}`
+        : replyText.trim();
       const { error } = await supabase
         .from('comments')
         .insert({
-          signal_id:  signalId,
-          user_id:    user.id,
+          signal_id: signalId,
+          user_id:   user.id,
           content,
-          parent_id:  replyingTo
+          parent_id: replyingTo
         });
       if (error) throw error;
       setReplyText('');
@@ -151,7 +159,7 @@ export default function CommentsScreen({ route, navigation }) {
     }
   }
 
-  // Düzenlemeyi kaydet
+  // 5) Düzenlemeyi kaydet
   async function handleSaveEdit(id) {
     if (!editingText.trim()) {
       setEditingId(null);
@@ -162,20 +170,17 @@ export default function CommentsScreen({ route, navigation }) {
         .from('comments')
         .update({ content: editingText.trim() })
         .eq('id', id);
-      if (updErr) {
-        Alert.alert('Düzenleme Başarısız', updErr.message);
-      } else {
-        setEditingId(null);
-        setEditingText('');
-        fetchComments();
-      }
+      if (updErr) throw updErr;
+      setEditingId(null);
+      setEditingText('');
+      fetchComments();
     } catch (err) {
       console.error(err);
       Alert.alert('Düzenleme Hatası', err.message);
     }
   }
 
-  // Silme onayı
+  // 6) Silme onayı + silme
   function confirmDelete(id) {
     Alert.alert(
       'Yorumu Sil',
@@ -191,11 +196,8 @@ export default function CommentsScreen({ route, navigation }) {
                 .from('comments')
                 .delete()
                 .eq('id', id);
-              if (delErr) {
-                Alert.alert('Silme Başarısız', delErr.message);
-              } else {
-                fetchComments();
-              }
+              if (delErr) throw delErr;
+              fetchComments();
             } catch (err) {
               console.error(err);
               Alert.alert('Silme Hatası', err.message);
@@ -206,6 +208,7 @@ export default function CommentsScreen({ route, navigation }) {
     );
   }
 
+  // 7) Recursive render
   const renderComment = (comment) => {
     const isReply = comment.parent_id !== null;
     return (
@@ -213,17 +216,17 @@ export default function CommentsScreen({ route, navigation }) {
         {editingId === comment.id ? (
           <View style={[styles.commentBox, isReply && { marginLeft: INDENT }]}>
             <TextInput
-              style={[styles.input, { backgroundColor: '#fff', marginBottom: 8 }]}
+              style={[styles.input, { backgroundColor:'#fff', marginBottom:8 }]}
               value={editingText}
               onChangeText={setEditingText}
               multiline
             />
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-              <TouchableOpacity onPress={() => setEditingId(null)} style={{ marginRight: 16 }}>
-                <Ionicons name="close-circle-outline" size={24} color="#ea4335" />
+            <View style={{ flexDirection:'row', justifyContent:'flex-end' }}>
+              <TouchableOpacity onPress={() => setEditingId(null)} style={{ marginRight:16 }}>
+                <Ionicons name="close-circle-outline" size={24} color="#ea4335"/>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleSaveEdit(comment.id)}>
-                <Ionicons name="checkmark-circle-outline" size={24} color="#34a853" />
+                <Ionicons name="checkmark-circle-outline" size={24} color="#34a853"/>
               </TouchableOpacity>
             </View>
           </View>
@@ -237,15 +240,12 @@ export default function CommentsScreen({ route, navigation }) {
             </Text>
             <Text style={styles.commentTime}>
               {new Date(comment.created_at).toLocaleDateString()}{' '}
-              {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {new Date(comment.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
             </Text>
             <View style={styles.actionsRow}>
               {profile?.user_type === 'investor' && (
                 <TouchableOpacity
-                  onPress={() => {
-                    setReplyingTo(comment.id);
-                    setReplyText('');
-                  }}
+                  onPress={() => { setReplyingTo(comment.id); setReplyText(''); }}
                 >
                   <Text style={styles.replyButtonText}>Cevapla</Text>
                 </TouchableOpacity>
@@ -257,13 +257,13 @@ export default function CommentsScreen({ route, navigation }) {
                       setEditingId(comment.id);
                       setEditingText(comment.content);
                     }}
-                    style={{ marginLeft: 16 }}
+                    style={{ marginLeft:16 }}
                   >
                     <Ionicons name="pencil-outline" size={20} color="#1a73e8" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => confirmDelete(comment.id)}
-                    style={{ marginLeft: 12 }}
+                    style={{ marginLeft:12 }}
                   >
                     <Ionicons name="trash-outline" size={20} color="#ea4335" />
                   </TouchableOpacity>
@@ -273,6 +273,7 @@ export default function CommentsScreen({ route, navigation }) {
           </View>
         )}
 
+        {/* Eğer cevap yazma modundaysak */}
         {replyingTo === comment.id && editingId !== comment.id && (
           <View style={[styles.replyInputRow, isReply && { marginLeft: INDENT }]}>
             <TextInput
@@ -288,6 +289,7 @@ export default function CommentsScreen({ route, navigation }) {
           </View>
         )}
 
+        {/* Child cevaplar */}
         {(commentsData.repliesMap[comment.id] || []).map(child =>
           renderComment(child)
         )}
@@ -336,9 +338,9 @@ export default function CommentsScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   loader:{ flex:1,justifyContent:'center',alignItems:'center' },
-  container:{ flex:1, paddingTop: Platform.OS==='android'
+  container:{ flex:1, paddingTop:Platform.OS==='android'
       ? (StatusBar.currentHeight||0)+16
-      :16 },
+      :16},
   commentBox:{
     backgroundColor:'#fff',
     borderRadius:8,

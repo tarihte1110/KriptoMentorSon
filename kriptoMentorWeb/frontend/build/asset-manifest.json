@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/static/css/main.86dc6dab.css",
+    "main.js": "/static/js/main.07555224.js",
+    "static/js/952.9e8c73d7.chunk.js": "/static/js/952.9e8c73d7.chunk.js",
+    "static/media/background-page.png": "/static/media/background-page.a0a5b8d05ad8241ba8b3.png",
+    "static/media/crypto-bg.png": "/static/media/crypto-bg.61074753e37e1ab96e46.png",
+    "static/media/logo.png": "/static/media/logo.88e6bc19287e69f72c83.png",
+    "static/media/bnb.png": "/static/media/bnb.03fb89c18e91d72d202e.png",
+    "static/media/tether.png": "/static/media/tether.24c00ae0aa4380be626a.png",
+    "static/media/solana.png": "/static/media/solana.70d0756b55323b64f0a7.png",
+    "static/media/litecoin.png": "/static/media/litecoin.438599a1d4c1e9524ed4.png",
+    "static/media/ethereum.png": "/static/media/ethereum.d3ba30aafb05c1e184ed.png",
+    "static/media/tron.png": "/static/media/tron.f25c439a9418b5344122.png",
+    "static/media/stellar.png": "/static/media/stellar.49616fb5fa97d6f6d72e.png",
+    "static/media/cardano.png": "/static/media/cardano.17080373abd77348b424.png",
+    "static/media/dogecoin.png": "/static/media/dogecoin.362eb22c071643becfa9.png",
+    "index.html": "/index.html",
+    "main.86dc6dab.css.map": "/static/css/main.86dc6dab.css.map",
+    "main.07555224.js.map": "/static/js/main.07555224.js.map",
+    "952.9e8c73d7.chunk.js.map": "/static/js/952.9e8c73d7.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.86dc6dab.css",
+    "static/js/main.07555224.js"
+  ]
+}

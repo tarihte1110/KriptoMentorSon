@@ -1,3 +1,5 @@
+/* src/pages/HomePage.css */
+
 /* Genel yapı */
 .home-page {
   padding-top: 16px;
@@ -12,41 +14,6 @@
   height: 60vh;
   font-size: 1rem;
   color: #666;
-}
-
-/* Üst kısım: arama */
-.home-header {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  margin-bottom: 12px;
-}
-
-.search-form {
-  flex: 1;
-  display: flex;
-}
-
-.search-form input {
-  flex: 1;
-  height: 40px;
-  border: 1px solid #1a73e8;
-  border-radius: 20px;
-  padding: 0 12px;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.search-form button {
-  width: 40px;
-  height: 40px;
-  margin-left: 8px;
-  border: none;
-  background-color: #1a73e8;
-  border-radius: 20px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 1.1rem;
 }
 
 /* Sinyal listesi */
@@ -70,6 +37,16 @@
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  background: transparent;       /* artık tamamen transparan */
+  padding: 0;
+}
+
+.user-row button,
+.user-row a {
+  background: transparent;       /* eğer bir buton/link içine sarıldıysa da temizle */
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 .user-icon {
@@ -82,6 +59,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: #1a73e8;
+  background: transparent;       /* başında/o bölmesinde renk kalmasın */
 }
 
 /* Başlık ve zaman */

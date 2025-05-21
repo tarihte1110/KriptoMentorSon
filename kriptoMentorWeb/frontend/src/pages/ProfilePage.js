@@ -2,23 +2,32 @@
 
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
-import { avatarList } from '../utils/avatars';
+import { supabase }    from '../lib/supabaseClient';
+import { avatarList }  from '../utils/avatars';
 import { SignalsContext } from '../context/SignalsContext';
 import './ProfilePage.css';
+import { FaUserCircle }  from 'react-icons/fa';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { signals } = useContext(SignalsContext);
+  const { signals: allSignals } = useContext(SignalsContext);
 
-  const [loading, setLoading] = useState(true);
-  const [user, setUser]       = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [loading, setLoading]           = useState(true);
+  const [user, setUser]                 = useState(null);
+  const [profile, setProfile]           = useState(null);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
+  // only for traders:
+  const [followersCount, setFollowersCount] = useState(0);
+
+  // only for investors:
+  const [followedTraderIds, setFollowedTraderIds] = useState([]);
+  const [followedTradersMap, setFollowedTradersMap] = useState({});
+
   useEffect(() => {
-    const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    (async () => {
+      // 1) session
+      const { data:{ session } } = await supabase.auth.getSession();
       const usr = session?.user;
       if (!usr) {
         navigate('/auth', { replace: true });
@@ -26,15 +35,15 @@ export default function ProfilePage() {
       }
       setUser(usr);
 
+      // 2) load or create profile
       let { data: prof, error } = await supabase
         .from('profiles')
-        .select('full_name, bio, avatar_url, created_at, user_type')
+        .select('full_name,bio,avatar_url,created_at,user_type')
         .eq('user_id', usr.id)
         .maybeSingle();
       if (error) console.error(error);
-
       if (!prof) {
-        const { data: np, error: ie } = await supabase
+        const { data: np } = await supabase
           .from('profiles')
           .insert({
             user_id: usr.id,
@@ -44,14 +53,39 @@ export default function ProfilePage() {
             user_type: 'investor'
           })
           .single();
-        if (ie) console.error(ie);
         prof = np;
       }
-
       setProfile(prof);
+
+      if (prof.user_type === 'trader') {
+        // fetch only follower count
+        const { count } = await supabase
+          .from('follows')
+          .select('*', { head:true, count:'exact' })
+          .eq('trader_id', usr.id);
+        setFollowersCount(count || 0);
+      } else {
+        // investor: fetch whom they follow
+        const { data: follows } = await supabase
+          .from('follows')
+          .select('trader_id')
+          .eq('investor_id', usr.id);
+        const traderIds = (follows || []).map(f => f.trader_id);
+        setFollowedTraderIds(traderIds);
+
+        if (traderIds.length) {
+          const { data: traders } = await supabase
+            .from('profiles')
+            .select('user_id,full_name')
+            .in('user_id', traderIds);
+          const map = {};
+          traders.forEach(t => { map[t.user_id] = t.full_name; });
+          setFollowedTradersMap(map);
+        }
+      }
+
       setLoading(false);
-    };
-    load();
+    })();
   }, [navigate]);
 
   const openLogoutModal = () => setLogoutModalVisible(true);
@@ -60,8 +94,6 @@ export default function ProfilePage() {
     await supabase.auth.signOut();
     navigate('/auth', { replace: true });
   };
-
-  const mySignals = (signals || []).filter(s => s.userId === user?.id);
 
   if (loading) {
     return (
@@ -75,26 +107,39 @@ export default function ProfilePage() {
   const avatarSrc  = avatarItem?.image;
   const joinedDate = new Date(profile.created_at).toLocaleDateString();
 
+  // choose signals to display
+  const visibleSignals = profile.user_type === 'trader'
+    ? allSignals.filter(s => s.userId === user.id)
+    : allSignals.filter(s => followedTraderIds.includes(s.userId));
+
   return (
     <div className="profile-page">
       <div className="profile-header">
-        {avatarSrc ? (
-          <img src={avatarSrc} alt="Avatar" className="avatar-img" />
-        ) : (
-          <div className="avatar-placeholder">👤</div>
-        )}
+        {avatarSrc
+          ? <img src={avatarSrc} alt="Avatar" className="avatar-img"/>
+          : <div className="avatar-placeholder">👤</div>
+        }
         <h2 className="profile-name">
           {profile.full_name || 'KriptoMentor Kullanıcısı'}
         </h2>
         <p className="profile-email">{user.email}</p>
         {profile.bio && <p className="profile-bio">{profile.bio}</p>}
         <p className="profile-joined">Katılım: {joinedDate}</p>
+
+        {profile.user_type === 'trader' && (
+          <p
+            className="followers-count-clickable"
+            onClick={() => navigate(`/app/profile/${user.id}/followers`)}
+          >
+            Takipçi: {followersCount}
+          </p>
+        )}
       </div>
 
       <div className="profile-buttons">
         <button
           className="btn edit-btn"
-          onClick={() => navigate('/edit-profile')}
+          onClick={() => navigate('/app/edit-profile')}
         >
           Profili Düzenle
         </button>
@@ -106,29 +151,55 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      <h3 className="signals-title">Paylaşılan Sinyaller</h3>
-      {mySignals.length === 0 ? (
+      <h3 className="signals-title">
+        {profile.user_type === 'investor'
+          ? 'Takip Edilen Trader Gönderileri'
+          : 'Paylaşılan Sinyaller'}
+      </h3>
+
+      {visibleSignals.length === 0 ? (
         <p className="empty-text">Henüz sinyal paylaşmadınız.</p>
       ) : (
         <ul className="signals-list">
-          {mySignals.map(item => {
+          {visibleSignals.map(item => {
+            // format date/time
             const d = new Date(item.timestamp);
             const dateStr = d.toLocaleDateString();
-            const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const timeStr = d.toLocaleTimeString([], {
+              hour:'2-digit',
+              minute:'2-digit'
+            });
+            // trader name if investor
+            const traderName = profile.user_type === 'investor'
+              ? followedTradersMap[item.userId] || 'Anonim'
+              : null;
+
             return (
               <li key={item.id} className="signal-card">
-                <div className="card-header">
-                  <span className="symbol">{item.symbol}</span>
-                  <span className="timestamp">{dateStr} {timeStr}</span>
+                {profile.user_type === 'investor' && (
+                  <div className="user-row">
+                    <FaUserCircle size={18} color="#1a73e8" />
+                    <button
+                      className="user-name"
+                      onClick={() => navigate(`/app/profile/${item.userId}`)}
+                    >
+                      {traderName}
+                    </button>
+                  </div>
+                )}
+                <div className="header-row">
+                  <h3 className="symbol">{item.symbol}</h3>
+                  <small className="timestamp">{dateStr} {timeStr}</small>
                 </div>
-                <div className="card-meta">
-                  <span className={`badge ${item.direction === 'LONG' ? 'long' : 'short'}`}>
+                <div className="meta-row">
+                  <span className={`badge ${item.direction==='LONG'?'long':'short'}`}>
                     {item.direction}
                   </span>
                   <span className="badge timeframe">
                     {item.timeFrame?.toUpperCase()}
                   </span>
                 </div>
+                <div className="divider" />
                 <div className="card-body">
                   <div className="row">
                     <span className="label">Entry Price</span>
@@ -138,9 +209,9 @@ export default function ProfilePage() {
                     <span className="label">Leverage</span>
                     <span className="value">{item.recommendedLeverage}x</span>
                   </div>
-                  {item.targets.map((t, i) => (
-                    <div className="row" key={i}>
-                      <span className="label">Target {i + 1}</span>
+                  {item.targets.map((t,i) => (
+                    <div key={i} className="row">
+                      <span className="label">Target {i+1}</span>
                       <span className="value target">{t}</span>
                     </div>
                   ))}
@@ -158,7 +229,7 @@ export default function ProfilePage() {
       {profile.user_type === 'trader' && (
         <button
           className="fab"
-          onClick={() => navigate('/share-signal')}
+          onClick={() => navigate('/app/share-signal')}
         >
           ＋
         </button>

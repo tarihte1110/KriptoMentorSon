@@ -1,0 +1,114 @@
+/* Tam ekran, yatay-dikey ortalama */
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    background: #f2f6fc;
+  }
+  
+  /* HEADER */
+  .landing-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: #1a73e8;
+  }
+  .landing-logo {
+    height: 80px;
+    cursor: pointer;
+  }
+  .landing-nav .nav-btn {
+    margin-left: 12px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .landing-nav .nav-btn.login {
+    background: transparent;
+    color: #fff;
+  }
+  .landing-nav .nav-btn.signup {
+    background: #fff;
+    color: #1a73e8;
+  }
+  
+  /* HERO BÖLÜMÜ */
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    background: url('../assets/images/crypto-bg.png') center/cover no-repeat;
+    position: relative;
+  }
+  .hero h1 {
+    font-size: 3rem;
+    color: #1a73e8;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin-bottom: 32px;
+    color: #444;
+  }
+  .hero-cta .btn {
+    min-width: 140px;
+    margin: 0 8px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .hero-cta .btn.primary {
+    background: #1a73e8;
+    color: #fff;
+    border: none;
+  }
+  .hero-cta .btn.secondary {
+    background: #fff;
+    color: #1a73e8;
+    border: 1px solid #1a73e8;
+  }
+  
+  /* ÖZELLİKLER BÖLÜMÜ */
+  .features {
+    display: flex;
+    justify-content: space-around;
+    padding: 60px 20px;
+    background: #fff;
+  }
+  .feature {
+    flex: 1;
+    max-width: 300px;
+    text-align: center;
+    padding: 0 16px;
+  }
+  .feature h3 {
+    font-size: 1.25rem;
+    color: #1a73e8;
+    margin-bottom: 8px;
+  }
+  .feature p {
+    font-size: 0.95rem;
+    color: #555;
+  }
+  
+  /* FOOTER */
+  .landing-footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.9rem;
+    background: #e8eaf6;
+    color: #666;
+  }
+  

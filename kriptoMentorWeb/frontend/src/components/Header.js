@@ -46,11 +46,12 @@ export default function Header() {
       } else if (!data) {
         alert(`"${name}" adlı trader bulunamadı.`);
       } else {
-        navigate(`/profile/${data.user_id}`);
+        // Mutlaka /app/profile/:userId rotasına yönlendir
+        navigate(`/app/profile/${data.user_id}`);
         setSearchText('');
       }
     }
-    // başka bir arama mantığı eklemek isterseniz buraya
+    // Başka arama mantıkları eklenirse buraya...
   };
 
   return (

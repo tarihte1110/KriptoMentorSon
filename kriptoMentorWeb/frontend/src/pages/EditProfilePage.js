@@ -15,42 +15,51 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     const load = async () => {
+      // 1) Oturumu al
       const { data: { session } } = await supabase.auth.getSession();
       const usr = session?.user;
-      if (!usr) return navigate('/auth', { replace: true });
+      if (!usr) {
+        navigate('/auth', { replace: true });
+        return;
+      }
       setUser(usr);
 
+      // 2) Profili çek
       const { data: prof, error } = await supabase
         .from('profiles')
         .select('full_name,bio,avatar_url')
         .eq('user_id', usr.id)
         .maybeSingle();
-      if (error) console.error(error);
-      if (prof) {
+
+      if (error) {
+        console.error('Profil yüklerken hata:', error);
+      } else if (prof) {
         setFullName(prof.full_name);
         setBio(prof.bio);
         setAvatar(prof.avatar_url);
       }
     };
+
     load();
   }, [navigate]);
 
   const handleSave = async () => {
     if (!user) return;
+
+    // Sadece mevcut satırı güncelliyoruz
     const { error } = await supabase
       .from('profiles')
-      .upsert(
-        {
-          user_id: user.id,
-          full_name: fullName,
-          bio,
-          avatar_url: avatar
-        },
-        { onConflict: 'user_id' }
-      );
+      .update({
+        full_name: fullName,
+        bio,
+        avatar_url: avatar
+      })
+      .eq('user_id', user.id);
+
     if (error) {
       alert('Profil güncellenirken hata: ' + error.message);
     } else {
+      // Başarılıysa profile sayfasına dön
       navigate('/profile');
     }
   };

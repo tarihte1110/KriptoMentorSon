@@ -26,7 +26,6 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -85,7 +84,6 @@
   color: #fff;
 }
 
-
 /* Profile Header */
 .profile-header {
   text-align: center;
@@ -123,6 +121,34 @@
   font-size: 15px;
   color: #333;
   max-width: 500px;
+}
+
+/* Clickable follower count */
+.followers-count-clickable {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a73e8;
+  cursor: pointer;
+  margin: 12px 0;
+}
+
+/* Followers list */
+.followers-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px auto 0;
+  max-width: 360px;
+}
+
+.followers-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #333;
+}
+
+.followers-list li:last-child {
+  border-bottom: none;
 }
 
 /* Buttons */
